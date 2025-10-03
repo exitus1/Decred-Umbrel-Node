@@ -1,33 +1,32 @@
-FROM debian:bullseye-slim
+FROM ubuntu:22.04
 
 ENV DCRD_VERSION=2.0.6
 
 # Install necessary tools:
-# wget, ca-certificates (for HTTPS), coreutils (for sha256sum), gnupg
-# We add curl as a backup tool if wget fails and dnsutils for debugging network issues.
+# curl (robust downloader), ca-certificates (for HTTPS), coreutils (for sha256sum), gnupg
+# Note: Ubuntu is often more resilient than Debian-slim images.
 RUN apt-get update && apt-get install -y \
-    wget \
+    curl \
     ca-certificates \
     coreutils \
     gnupg \
-    curl \
-    dnsutils \
+    --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /tmp
 
 # Download, verify, and install the dcrd binary for AMD64 (Intel CPU)
-# We assume this line is where the build stalls due to a network/DNS failure.
-RUN wget https://github.com/decred/decred-binaries/releases/download/v${DCRD_VERSION}/dcrd-linux-amd64-v${DCRD_VERSION}.tar.gz && \
-    echo "e957f867055e2d63321593c66f57e6275811c750f584e030018f3a3848b5ffb0 dcrd-linux-amd64-v${DCRD_VERSION}.tar.gz" | sha256sum -c - && \
-    tar -xzf dcrd-linux-amd64-v${DCRD_VERSION}.tar.gz && \
+# CRITICAL FIX: The URL is now the direct GitHub link, resolving the build failure.
+RUN curl -L -o dcrd.tar.gz https://github.com/decred/decred-binaries/releases/download/v${DCRD_VERSION}/dcrd-linux-amd64-v${DCRD_VERSION}.tar.gz && \
+    echo "e957f867055e2d63321593c66f57e6275811c750f584e030018f3a3848b5ffb0 dcrd.tar.gz" | sha256sum -c - && \
+    tar -xzf dcrd.tar.gz && \
     mv dcrd-linux-amd64-v${DCRD_VERSION}/dcrd /usr/local/bin/ && \
     chmod +x /usr/local/bin/dcrd && \
     rm -rf /tmp/*
 
 RUN mkdir -p /data/.dcrd
 
-# Use the modified entrypoint.sh from the root directory
+# Copy the entrypoint script (which we confirmed uses chown and exec)
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
