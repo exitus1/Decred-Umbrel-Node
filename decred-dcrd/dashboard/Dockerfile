@@ -2,15 +2,18 @@ FROM node:18-bullseye-slim AS builder
 
 WORKDIR /app
 
-# Install system dependencies needed for native module compilation (e.g., shadcn/bcrypt)
+# Install system dependencies needed for native module compilation
 RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy source files (including package.json, server.js, etc.)
+# Copy source files
 COPY . .
 
-# Install dependencies
+# CRITICAL FIX: Remove bun.lockb to prevent conflict with npm ci
+RUN rm -f bun.lockb
+
+# Install dependencies using package-lock.json
 RUN npm ci
 
 # Build the Vite/React app (outputs to /app/dist)
@@ -22,7 +25,6 @@ FROM node:18-bullseye-slim
 WORKDIR /app
 
 # Copy built files from the builder stage
-# CRITICAL FIX: Targets 'dist' and sets destination to 'dist' (matches server.js)
 COPY --from=builder /app/dist ./dist
 
 # Copy the server script
