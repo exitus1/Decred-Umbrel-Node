@@ -1,46 +1,44 @@
 version: "3.7"
 
 services:
-  server:
-    image: decred-node:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: on-failure
-    stop_grace_period: 5m
-    volumes:
-      - ${APP_DATA_DIR}/data:/data
-    networks:
-      default:
-        ipv4_address: $APP_DECRED_NODE_IP
+  # Umbrel reverse proxy wiring for your app's web UI
+  app_proxy:
     environment:
-      APP_DECRED_NODE_RPC_USER: $APP_DECRED_NODE_RPC_USER
-      APP_DECRED_NODE_RPC_PASS: $APP_DECRED_NODE_RPC_PASS
-      APP_DECRED_NODE_RPC_PORT: $APP_DECRED_NODE_RPC_PORT
-      APP_DECRED_NODE_P2P_PORT: $APP_DECRED_NODE_P2P_PORT
-    ports:
-      - "$APP_DECRED_NODE_P2P_PORT:$APP_DECRED_NODE_P2P_PORT"
+      APP_HOST: dashboard           # must match service name below
+      APP_PORT: 3000                # internal port your UI listens on
 
+  # dcrd daemon
+  server:
+    image: ghcr.io/yourorg/dcrd:2.0.6   # prebuilt multi-arch image
+    restart: unless-stopped
+    stop_grace_period: 1m
+    volumes:
+      - ${APP_DATA_DIR}/dcrd:/data
+    command: >
+      dcrd
+      --appdata=/data
+      --txindex
+      --listen=0.0.0.0:9108            # P2P listen IN-CONTAINER (no host port)
+      --rpclisten=0.0.0.0:9109
+      --rpcuser=${DCRD_RPC_USER}
+      --rpcpass=${DCRD_RPC_PASS}
+    healthcheck:
+      test: ["CMD", "sh", "-c", "grep -q 'Server listening' /data/logs/mainnet/dcrd.log || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+
+  # Web dashboard
   dashboard:
-    image: decred-dashboard:latest
-    build:
-      context: ./dashboard
-      dockerfile: Dockerfile
-    restart: on-failure
+    image: ghcr.io/yourorg/decred-dashboard:0.1.0  # prebuilt multi-arch image
+    restart: unless-stopped
     depends_on:
       - server
     environment:
-      DCRD_RPC_HOST: $APP_DECRED_NODE_IP
-      DCRD_RPC_PORT: $APP_DECRED_NODE_RPC_PORT
-      DCRD_RPC_USER: $APP_DECRED_NODE_RPC_USER
-      DCRD_RPC_PASS: $APP_DECRED_NODE_RPC_PASS
-    ports:
-      - "3000:3000"
+      DCRD_RPC_HOST: server:9109
+      DCRD_RPC_USER: ${DCRD_RPC_USER}
+      DCRD_RPC_PASS: ${DCRD_RPC_PASS}
+      PORT: 3000
+    volumes:
+      - ${APP_DATA_DIR}/dashboard:/data
 
-networks:
-  default:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.21.21.0/24
