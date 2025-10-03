@@ -2,19 +2,28 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm install
+# Copy package files
+COPY package*.json ./
+RUN npm ci
 
+# Copy all source files including configs
 COPY . .
+
+# Build the React app
 RUN npm run build
 
+# Production stage
 FROM node:18-alpine
 
 WORKDIR /app
 
+# Copy built files
 COPY --from=builder /app/dist ./dist
+
+# Copy server
 COPY server.js ./
 
+# Install production dependencies
 RUN npm install express
 
 EXPOSE 3000
