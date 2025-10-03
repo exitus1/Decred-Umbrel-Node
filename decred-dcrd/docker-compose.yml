@@ -11,7 +11,9 @@ services:
   dcrd: 
     image: decred-node:latest
     build:
-      context: .
+      # CRITICAL FIX: Changed context from '.' to './dcrd'
+      # This requires Dockerfile and entrypoint.sh to be moved into a 'dcrd' folder.
+      context: ./dcrd
       dockerfile: Dockerfile
     restart: on-failure
     stop_grace_period: 5m
