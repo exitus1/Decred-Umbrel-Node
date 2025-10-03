@@ -1,5 +1,5 @@
 manifestVersion: 1
-id: exitus1-decred-node
+id: decred-dcrd
 category: finance
 name: Decred Node
 version: "2.0.6"
