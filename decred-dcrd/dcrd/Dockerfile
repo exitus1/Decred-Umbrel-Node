@@ -15,8 +15,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /tmp
 
-# Download, verify, and install the dcrd binary for AMD64 (Intel CPU)
-# CRITICAL FIX: The URL is now the direct GitHub link, resolving the build failure.
+# CRITICAL FIX: Direct link to the binary. This should resolve the 0% stall.
 RUN curl -L -o dcrd.tar.gz https://github.com/decred/decred-binaries/releases/download/v${DCRD_VERSION}/dcrd-linux-amd64-v${DCRD_VERSION}.tar.gz && \
     echo "e957f867055e2d63321593c66f57e6275811c750f584e030018f3a3848b5ffb0 dcrd.tar.gz" | sha256sum -c - && \
     tar -xzf dcrd.tar.gz && \
