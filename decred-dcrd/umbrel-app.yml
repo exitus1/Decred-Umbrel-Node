@@ -28,15 +28,12 @@ website: https://decred.org
 dependencies: []
 repo: https://github.com/decred/dcrd
 support: https://docs.decred.org
-icon: icon.png
 port: 3000
-gallery:
-  - node1.png
-path: /
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
 torOnly: false
-architecture:
-  - amd64
-  - arm64
-permissions:
-  - STORAGE_READ
-  - STORAGE_WRITE
+permissions: []
+submitter: exitus1
+submission: https://github.com/exitus1/Decred-Umbrel-Node
