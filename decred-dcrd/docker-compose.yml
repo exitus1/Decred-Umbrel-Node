@@ -11,8 +11,7 @@ services:
   dcrd: 
     image: decred-node:latest
     build:
-      # CRITICAL FIX: Changed context from '.' to './dcrd'
-      # This requires Dockerfile and entrypoint.sh to be moved into a 'dcrd' folder.
+      # Fix: Context points to the dedicated dcrd folder
       context: ./dcrd
       dockerfile: Dockerfile
     restart: on-failure
@@ -24,8 +23,9 @@ services:
       APP_DECRED_NODE_RPC_PASS: $APP_DECRED_NODE_RPC_PASS
       APP_DECRED_NODE_RPC_PORT: $APP_DECRED_NODE_RPC_PORT
       APP_DECRED_NODE_P2P_PORT: $APP_DECRED_NODE_P2P_PORT
-      # CRITICAL: The 'ports' block has been removed here.
-
+    # CRITICAL FIX: Ensures the service runs as UID 1000, which has proper write access to the Umbrel volume
+    user: "1000"
+    
   # Renamed service from 'dashboard' to 'decred-ui'
   decred-ui: 
     image: decred-dashboard:latest
@@ -42,4 +42,3 @@ services:
       DCRD_RPC_PORT: $APP_DECRED_NODE_RPC_PORT
       DCRD_RPC_USER: $APP_DECRED_NODE_RPC_USER
       DCRD_RPC_PASS: $APP_DECRED_NODE_RPC_PASS
-
