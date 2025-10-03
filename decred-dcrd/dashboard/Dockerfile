@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:18-bullseye AS builder
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY . .
 # Build the React app
 RUN npm run build
 
-# Production stage
+# Production stage - can stay Alpine since it's just serving static files
 FROM node:18-alpine
 
 WORKDIR /app
