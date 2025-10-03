@@ -1,29 +1,29 @@
+FROM node:18-bullseye-slim AS builder
+
+WORKDIR /app
+
+# Copy source files (including package.json, server.js, etc.)
+COPY . .
+
+# Install dependencies
+RUN npm ci
+
+# Build the Vite/React app (outputs to /app/dist)
+RUN npm run build
+
+# Production stage - use same base image for compatibility
 FROM node:18-bullseye-slim
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-RUN npm ci
+# Copy built files from the builder stage
+# CRITICAL FIX: Targets 'dist' and sets destination to 'dist' (matches server.js)
+COPY --from=builder /app/dist ./dist
 
-# Copy all source files including configs
-COPY . .
-
-# Build the React app
-RUN npm run build
-
-# Production stage - can stay Alpine since it's just serving static files
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy built files
-COPY --from=builder /app/dist ./dis
-
-# Copy server
+# Copy the server script
 COPY server.js ./
 
-# Install production dependencies
+# Install only the production dependencies needed for the server (e.g., express)
 RUN npm install express
 
 EXPOSE 3000
