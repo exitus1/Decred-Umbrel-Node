@@ -3,53 +3,46 @@ version: "3.7"
 services:
   app_proxy:
     environment:
-      # Renamed to point to the new service name
-      APP_HOST: decred-ui 
+      APP_HOST: decred-ui
       APP_PORT: 3000
-    networks:
-      - default
 
-  # Renamed service from 'server' to 'dcrd'
-  dcrd: 
+  dcrd:
     image: decred-node:latest
     build:
-      # Fix: Context points to the dedicated dcrd folder
-      context: ./dcrd
+      context: .              # ← CHANGED from ./dcrd to .
       dockerfile: Dockerfile
     restart: on-failure
     stop_grace_period: 5m
     volumes:
-      - ${APP_DATA_DIR}/data:/data
+      - ${APP_DATA_DIR}/data:/root/.dcrd  # ← CHANGED from /data to /root/.dcrd
+    ports:                    # ← ADDED (missing ports!)
+      - "9108:9108"
+      - "9109:9109"
     environment:
-      APP_DECRED_NODE_RPC_USER: $APP_DECRED_NODE_RPC_USER
-      APP_DECRED_NODE_RPC_PASS: $APP_DECRED_NODE_RPC_PASS
-      APP_DECRED_NODE_RPC_PORT: $APP_DECRED_NODE_RPC_PORT
-      APP_DECRED_NODE_P2P_PORT: $APP_DECRED_NODE_P2P_PORT
-    # CRITICAL FIX: Ensures the service runs as UID 1000, which has proper write access
+      APP_DECRED_NODE_RPC_USER: ${APP_DECRED_NODE_RPC_USER}
+      APP_DECRED_NODE_RPC_PASS: ${APP_DECRED_NODE_RPC_PASS}
+      APP_DECRED_NODE_RPC_PORT: ${APP_DECRED_NODE_RPC_PORT}
+      APP_DECRED_NODE_P2P_PORT: ${APP_DECRED_NODE_P2P_PORT}
     user: "1000"
     networks:
       - default
-    
-  # Renamed service from 'dashboard' to 'decred-ui'
-  decred-ui: 
+
+  decred-ui:
     image: decred-dashboard:latest
     build:
       context: ./dashboard
       dockerfile: Dockerfile
     restart: on-failure
     depends_on:
-      # Updated dependency to the new service name
-      - dcrd 
+      - dcrd
     environment:
-      # Updated RPC host to the new service name
-      DCRD_RPC_HOST: dcrd 
-      DCRD_RPC_PORT: $APP_DECRED_NODE_RPC_PORT
-      DCRD_RPC_USER: $APP_DECRED_NODE_RPC_USER
-      DCRD_RPC_PASS: $APP_DECRED_NODE_RPC_PASS
+      DCRD_RPC_HOST: dcrd
+      DCRD_RPC_PORT: ${APP_DECRED_NODE_RPC_PORT}
+      DCRD_RPC_USER: ${APP_DECRED_NODE_RPC_USER}
+      DCRD_RPC_PASS: ${APP_DECRED_NODE_RPC_PASS}
     networks:
       - default
 
-# FINAL FIX: Explicitly define the default network for robustness
 networks:
   default:
     driver: bridge
