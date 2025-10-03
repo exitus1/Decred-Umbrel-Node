@@ -28,6 +28,7 @@ website: https://decred.org
 dependencies: []
 repo: https://github.com/decred/dcrd
 support: https://docs.decred.org
+icon: icon.png
 port: 3000
 gallery: []
 path: ""
