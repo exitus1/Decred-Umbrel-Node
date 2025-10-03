@@ -18,7 +18,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copy built files
-COPY --from=builder /app/build ./build
+COPY --from=builder /app/dist ./dis
 
 # Copy server
 COPY server.js ./
