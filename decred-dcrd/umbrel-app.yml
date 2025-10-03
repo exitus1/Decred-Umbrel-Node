@@ -1,0 +1,43 @@
+manifestVersion: 1
+id: exitus1-decred-node
+category: finance
+name: Decred Node
+version: "2.0.6"
+tagline: Run a Decred full node
+description: >-
+  Run a Decred (DCR) full node on your Umbrel. 
+  
+  Decred is a blockchain-based cryptocurrency with a strong focus on community input, open governance, and sustainable funding for development. This app runs a full dcrd node that validates all blocks and transactions on the Decred network.
+  
+  Features:
+  - Full node validation of Decred blockchain
+  - Real-time network statistics
+  - Peer connection monitoring
+  - Sync progress tracking
+  - Dark mode dashboard with Decred branding
+  
+  The node will automatically download and verify the entire Decred blockchain. Initial sync may take several hours depending on your connection speed.
+releaseNotes: >-
+  Initial release with dcrd v2.0.6
+  - Full node capabilities
+  - Web dashboard for monitoring
+  - Auto-generated RPC credentials
+  - Persistent blockchain storage
+developer: Decred Community
+website: https://decred.org
+dependencies: []
+repo: https://github.com/decred/dcrd
+support: https://docs.decred.org
+port: 3000
+gallery:
+  - 1.jpg
+  - 2.jpg
+  - 3.jpg
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+torOnly: false
+permissions:
+  - STORAGE_DOWNLOADS
+submitter: Umbrel Community
+submission: https://github.com/getumbrel/umbrel-apps
