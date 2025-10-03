@@ -6,6 +6,8 @@ services:
       # Renamed to point to the new service name
       APP_HOST: decred-ui 
       APP_PORT: 3000
+    networks:
+      - default
 
   # Renamed service from 'server' to 'dcrd'
   dcrd: 
@@ -23,8 +25,10 @@ services:
       APP_DECRED_NODE_RPC_PASS: $APP_DECRED_NODE_RPC_PASS
       APP_DECRED_NODE_RPC_PORT: $APP_DECRED_NODE_RPC_PORT
       APP_DECRED_NODE_P2P_PORT: $APP_DECRED_NODE_P2P_PORT
-    # CRITICAL FIX: Ensures the service runs as UID 1000, which has proper write access to the Umbrel volume
+    # CRITICAL FIX: Ensures the service runs as UID 1000, which has proper write access
     user: "1000"
+    networks:
+      - default
     
   # Renamed service from 'dashboard' to 'decred-ui'
   decred-ui: 
@@ -42,3 +46,10 @@ services:
       DCRD_RPC_PORT: $APP_DECRED_NODE_RPC_PORT
       DCRD_RPC_USER: $APP_DECRED_NODE_RPC_USER
       DCRD_RPC_PASS: $APP_DECRED_NODE_RPC_PASS
+    networks:
+      - default
+
+# FINAL FIX: Explicitly define the default network for robustness
+networks:
+  default:
+    driver: bridge
