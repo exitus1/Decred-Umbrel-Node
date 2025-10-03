@@ -5,7 +5,7 @@ services:
   app_proxy:
     environment:
       APP_HOST: dashboard           # must match service name below
-      APP_PORT: 3000                # internal port your UI listens on
+      APP_PORT: 3001                # internal port your UI listens on
 
   # dcrd daemon
   server:
