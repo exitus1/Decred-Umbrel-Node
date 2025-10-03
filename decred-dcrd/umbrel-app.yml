@@ -31,11 +31,9 @@ support: https://docs.decred.org
 icon: icon1.svg
 port: 3000
 gallery: []
-path: ""
 defaultUsername: ""
 defaultPassword: ""
-torOnly: false
+torOnly: true # Changed from false
 permissions: []
 submitter: exitus1
 submission: https://github.com/exitus1/Decred-Umbrel-Node
-
