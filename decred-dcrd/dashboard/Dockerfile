@@ -1,38 +1,18 @@
-FROM node:18-bullseye-slim AS builder
+FROM debian:bullseye-slim
 
-WORKDIR /app
+ENV DCRD_VERSION=2.0.6
+ENV DCRD_URL=https://github.com/decred/decred-binaries/releases/download/v${DCRD_VERSION}/dcrd-linux-amd64-v${DCRD_VERSION}.tar.gz
 
-# Install system dependencies needed for native module compilation
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    wget && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy source files
-COPY . .
+WORKDIR /tmp
 
-# CRITICAL FIX: Remove bun.lockb to prevent conflict with npm ci
-RUN rm -f bun.lockb
-
-# Install dependencies using package-lock.json
-RUN npm ci
-
-# Build the Vite/React app (outputs to /app/dist)
-RUN npm run build
-
-# Production stage - use same base image for compatibility
-FROM node:18-bullseye-slim
-
-WORKDIR /app
-
-# Copy built files from the builder stage
-COPY --from=builder /app/dist ./dist
-
-# Copy the server script
-COPY server.js ./
-
-# Install only the production dependencies needed for the server (e.g., express)
-RUN npm install express
-
-EXPOSE 3000
-
-CMD ["node", "server.js"]
+RUN wget ${DCRD_URL} && \
+    tar -xzf dcrd-linux-amd64-v${DCRD_VERSION}.tar.gz && \
+    mv dcrd-linux-amd64-v${DCRD_VERSION}/dcrd /usr/local/bin/ && \
+    chmod +x /usr/local/bin/dcrd && \
+    rm -rf /tmp/*
