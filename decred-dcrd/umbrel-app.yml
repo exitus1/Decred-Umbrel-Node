@@ -28,6 +28,7 @@ website: https://decred.org
 dependencies: []
 repo: https://github.com/decred/dcrd
 support: https://docs.decred.org
+icon: icon.svg
 port: 3000
 gallery:
   - 1.jpg
@@ -39,5 +40,7 @@ defaultPassword: ""
 torOnly: false
 permissions:
   - STORAGE_DOWNLOADS
+  - STORAGE_READ
+  - STORAGE_WRITE
 submitter: Umbrel Community
 submission: https://github.com/getumbrel/umbrel-apps
