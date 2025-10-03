@@ -1,6 +1,6 @@
 manifestVersion: 1
 id: decred-dcrd
-category: finance
+category: blockchain
 name: Decred Node
 version: "2.0.6"
 tagline: Run a Decred full node
@@ -38,8 +38,5 @@ architecture:
   - amd64
   - arm64
 permissions:
-  - STORAGE_DOWNLOADS
   - STORAGE_READ
   - STORAGE_WRITE
-submitter: Umbrel Community
-submission: https://github.com/getumbrel/umbrel-apps
