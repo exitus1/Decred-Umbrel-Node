@@ -8,7 +8,32 @@ import decredLogo from "@/assets/decred-logo.jpg";
 import dcrSymbol from "@/assets/dcr-symbol.png";
 import { useQuery } from "@tanstack/react-query";
 
-// API functions
+// Local node API functions
+const fetchNodeInfo = async () => {
+  const res = await fetch("/api/node/info");
+  if (!res.ok) throw new Error('Node not available');
+  return res.json();
+};
+
+const fetchBlockchainInfo = async () => {
+  const res = await fetch("/api/node/blockchain");
+  if (!res.ok) throw new Error('Node not available');
+  return res.json();
+};
+
+const fetchPeerInfo = async () => {
+  const res = await fetch("/api/node/peerinfo");
+  if (!res.ok) throw new Error('Node not available');
+  return res.json();
+};
+
+const fetchNetworkHashrate = async () => {
+  const res = await fetch("/api/node/networkhashps");
+  if (!res.ok) throw new Error('Node not available');
+  return res.json();
+};
+
+// Explorer API functions (for network-wide stats not available from local node)
 const fetchSupply = async () => {
   const res = await fetch("https://explorer.dcrdata.org/api/supply");
   return res.json();
@@ -24,12 +49,37 @@ const fetchExchangeRate = async () => {
   return res.json();
 };
 
-const fetchBlockBest = async () => {
-  const res = await fetch("https://explorer.dcrdata.org/api/block/best");
-  return res.json();
-};
-
 const Index = () => {
+  // Local node queries
+  const { data: nodeInfo, isError: nodeError } = useQuery({
+    queryKey: ["nodeInfo"],
+    queryFn: fetchNodeInfo,
+    refetchInterval: 10000,
+    retry: 3,
+  });
+
+  const { data: blockchainInfo } = useQuery({
+    queryKey: ["blockchainInfo"],
+    queryFn: fetchBlockchainInfo,
+    refetchInterval: 30000,
+    enabled: !!nodeInfo,
+  });
+
+  const { data: peerInfo } = useQuery({
+    queryKey: ["peerInfo"],
+    queryFn: fetchPeerInfo,
+    refetchInterval: 30000,
+    enabled: !!nodeInfo,
+  });
+
+  const { data: hashrateData } = useQuery({
+    queryKey: ["networkHashrate"],
+    queryFn: fetchNetworkHashrate,
+    refetchInterval: 60000,
+    enabled: !!nodeInfo,
+  });
+
+  // Explorer queries (fallback/supplementary data)
   const { data: supplyData } = useQuery({
     queryKey: ["supply"],
     queryFn: fetchSupply,
@@ -48,13 +98,26 @@ const Index = () => {
     refetchInterval: 60000,
   });
 
-  const { data: blockData } = useQuery({
-    queryKey: ["blockBest"],
-    queryFn: fetchBlockBest,
-    refetchInterval: 30000,
-  });
+  // Calculate metrics from local node
+  const blockHeight = blockchainInfo
+    ? blockchainInfo.blocks.toLocaleString()
+    : nodeInfo?.blocks?.toLocaleString() || "Syncing...";
 
-  // Calculate metrics
+  const peerCount = peerInfo?.length || nodeInfo?.connections || 0;
+
+  const syncProgress = blockchainInfo
+    ? Number((blockchainInfo.verificationprogress * 100).toFixed(1))
+    : 0;
+
+  const isSyncing = syncProgress < 99.9;
+  const nodeStatus = nodeError ? "stopped" : (isSyncing ? "syncing" : "running");
+
+  // Network hashrate from local node
+  const hashrate = hashrateData?.hashrate
+    ? (hashrateData.hashrate / 1e15).toFixed(0) + " PH/s"
+    : "Calculating...";
+
+  // Calculate metrics from explorer
   const circulatingSupply = supplyData 
     ? (supplyData.supply_mined / 100000000 / 1000000).toFixed(2) + "M"
     : "17.05M";
@@ -70,10 +133,6 @@ const Index = () => {
   const exchangeRate = exchangeRateData
     ? "$" + exchangeRateData.dcrPrice.toFixed(2)
     : "$17.70";
-
-  const blockHeight = blockData
-    ? blockData.height.toLocaleString()
-    : "856,234";
 
   // Treasury size - using approximate value (would need separate API or scraping)
   const treasurySize = "861.6K";
@@ -119,13 +178,15 @@ const Index = () => {
               className="px-4 py-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all duration-300 hover:shadow-glow-primary backdrop-blur-sm"
             >
               <p className="text-sm text-muted-foreground">Version</p>
-              <p className="text-lg font-semibold text-primary">v2.0.6</p>
+              <p className="text-lg font-semibold text-primary">
+                {nodeInfo?.version ? `v${(nodeInfo.version / 10000).toFixed(1)}` : 'v2.0.6'}
+              </p>
             </a>
           </div>
         </div>
 
         {/* Node Status */}
-        <NodeStatus status="running" syncProgress={100} />
+        <NodeStatus status={nodeStatus} syncProgress={Number(syncProgress)} />
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -138,10 +199,10 @@ const Index = () => {
           />
           <MetricCard
             title="Network Peers"
-            value={8}
+            value={peerCount}
             subtitle="Connected nodes"
             icon={Users}
-            trend={{ value: "+2 today", isPositive: true }}
+            trend={{ value: nodeError ? "Node offline" : "Your node", isPositive: !nodeError }}
           />
           <MetricCard
             title="Block Height"
@@ -151,10 +212,10 @@ const Index = () => {
           />
           <MetricCard
             title="Network Hashrate"
-            value="452 PH/s"
+            value={hashrate}
             subtitle="Total network power"
             icon={TrendingUp}
-            trend={{ value: "+5.2%", isPositive: true }}
+            trend={{ value: "Real-time", isPositive: true }}
           />
         </div>
 
