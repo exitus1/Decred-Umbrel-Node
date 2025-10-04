@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // RPC connection details from environment
-const RPC_HOST = process.env.DCRD_RPC_HOST || 'server';
+const RPC_HOST = process.env.DCRD_RPC_HOST || 'dcrd';
 const RPC_PORT = process.env.DCRD_RPC_PORT || '9109';
 const RPC_USER = process.env.DCRD_RPC_USER || 'umbrel';
 const RPC_PASS = process.env.DCRD_RPC_PASS || '';
