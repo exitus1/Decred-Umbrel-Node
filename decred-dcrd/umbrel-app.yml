@@ -29,11 +29,16 @@ dependencies: []
 repo: https://github.com/decred/dcrd
 support: https://docs.decred.org
 icon: https://raw.githubusercontent.com/exitus1/Decred-Umbrel-Node/refs/heads/main/decred-dcrd/icon.svg
-port: 9109
+port: 3000
 gallery: []
 defaultUsername: ""
 defaultPassword: ""
 torOnly: false
 permissions: []
+environment:
+  APP_DECRED_NODE_RPC_USER: "umbrel"
+  APP_DECRED_NODE_RPC_PASS: "changeme123"
+  APP_DECRED_NODE_RPC_PORT: "9109"
+  APP_DECRED_NODE_P2P_PORT: "9108"
 submitter: exitus1
 submission: https://github.com/exitus1/Decred-Umbrel-Node
