@@ -19,6 +19,10 @@ const RPC_PASS = process.env.DCRD_RPC_PASS;
 
 // RPC helper function
 async function rpcCall(method, params = []) {
+  if (!RPC_USER || !RPC_PASS) {
+    throw new Error('RPC credentials not available');
+  }
+  
   const auth = Buffer.from(`${RPC_USER}:${RPC_PASS}`).toString('base64');
   
   try {
@@ -26,7 +30,7 @@ async function rpcCall(method, params = []) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(RPC_USER && RPC_PASS ? { 'Authorization': `Basic ${auth}` } : {})
+        'Authorization': `Basic ${auth}`
       },
       body: JSON.stringify({
         jsonrpc: '1.0',
@@ -111,8 +115,7 @@ app.get('*', (req, res) => {
 
 // Handle the invalid RPC_USER or RPC_PASS
 if (!RPC_USER || !RPC_PASS) {
-  console.error("RPC_USER and RPC_PASS must be set as environment variables");
-  process.exit(1);
+  console.warn("Warning: RPC_USER and RPC_PASS not set. RPC calls will fail until dcrd is ready.");
 }
 
 const PORT = process.env.PORT || 3000;

@@ -1,33 +1,25 @@
-FROM node:18-bullseye AS builder
+# Simplified dashboard build
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files first for better caching
 COPY package*.json ./
+
+# Install all dependencies (including dev dependencies for build)
 RUN npm ci
 
-# Copy all source files including configs
+# Copy source files
 COPY . .
 
 # Build the React app
 RUN npm run build
 
-# Production stage
-FROM node:18-alpine
+# Clean up dev dependencies and install only production deps
+RUN npm ci --only=production
 
-WORKDIR /app
-
-# Copy built files
-COPY --from=builder /app/dist ./dist
-
-# Copy server
-COPY server.js ./
-
-# Create minimal package.json for ES modules
-RUN echo '{"type":"module"}' > package.json
-
-# Install production dependencies
-RUN npm install express
+# Create package.json for ES modules
+RUN echo '{"type":"module"}' > package.json && npm install express
 
 EXPOSE 3000
 

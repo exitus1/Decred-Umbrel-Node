@@ -3,8 +3,8 @@ version: "3.7"
 services:
   app_proxy:
     environment:
-      APP_HOST: decred-ui
-      APP_PORT: 3000
+      APP_HOST: dcrd
+      APP_PORT: 9109
 
   dcrd:
     image: decred-node:latest
@@ -27,21 +27,22 @@ services:
       - "${APP_DECRED_NODE_P2P_PORT}:${APP_DECRED_NODE_P2P_PORT}"
       - "${APP_DECRED_NODE_RPC_PORT}:${APP_DECRED_NODE_RPC_PORT}"
 
-  decred-ui:
-    image: decred-dashboard:latest
-    build:
-      context: ./dashboard
-      dockerfile: Dockerfile
-    restart: on-failure
-    depends_on:
-      - dcrd
-    environment:
-      DCRD_RPC_HOST: dcrd
-      DCRD_RPC_PORT: ${APP_DECRED_NODE_RPC_PORT}
-      DCRD_RPC_USER: ${APP_DECRED_NODE_RPC_USER}
-      DCRD_RPC_PASS: ${APP_DECRED_NODE_RPC_PASS}
-    networks:
-      - default
+# Temporarily disable dashboard to test if it's causing installation failure
+  # decred-ui:
+  #   image: decred-dashboard:latest
+  #   build:
+  #     context: ./dashboard
+  #     dockerfile: Dockerfile
+  #   restart: on-failure
+  #   depends_on:
+  #     - dcrd
+  #   environment:
+  #     DCRD_RPC_HOST: dcrd
+  #     DCRD_RPC_PORT: ${APP_DECRED_NODE_RPC_PORT}
+  #     DCRD_RPC_USER: ${APP_DECRED_NODE_RPC_USER}
+  #     DCRD_RPC_PASS: ${APP_DECRED_NODE_RPC_PASS}
+  #   networks:
+  #     - default
 
 networks:
   default:
