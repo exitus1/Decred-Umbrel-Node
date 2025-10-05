@@ -7,14 +7,19 @@ services:
       APP_PORT: 9109
 
   dcrd:
-    image: nginx:alpine
+    image: debian:bullseye-slim
     restart: on-failure
+    command: ["sleep", "infinity"]
     volumes:
-      - ${APP_DATA_DIR}/data:/usr/share/nginx/html
+      - ${APP_DATA_DIR}/data:/data
+    environment:
+      - DCRD_RPC_USER=${APP_DECRED_NODE_RPC_USER}
+      - DCRD_RPC_PASS=${APP_DECRED_NODE_RPC_PASS}
     networks:
       - default
     ports:
-      - "9109:80"
+      - "${APP_DECRED_NODE_P2P_PORT}:${APP_DECRED_NODE_P2P_PORT}"
+      - "${APP_DECRED_NODE_RPC_PORT}:${APP_DECRED_NODE_RPC_PORT}"
 
 # Dashboard temporarily disabled for testing
   # decred-ui:
