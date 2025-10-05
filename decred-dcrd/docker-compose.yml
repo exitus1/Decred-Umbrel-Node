@@ -10,8 +10,6 @@ services:
     image: debian:bullseye-slim
     restart: on-failure
     command: ["sleep", "infinity"]
-    ports:
-      - "9109:9109"
 
 # Dashboard temporarily disabled for testing
   # decred-ui:
