@@ -7,21 +7,12 @@ services:
       APP_PORT: 9109
 
   dcrd:
-    image: decred-node:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: debian:bullseye-slim
     restart: on-failure
     stop_grace_period: 5m
     volumes:
       - ${APP_DATA_DIR}/data:/home/decred/.dcrd
-    command:
-      - "--rpclisten=0.0.0.0:${APP_DECRED_NODE_RPC_PORT}"
-      - "--listen=0.0.0.0:${APP_DECRED_NODE_P2P_PORT}"
-      - "--rpcuser=${APP_DECRED_NODE_RPC_USER}"
-      - "--rpcpass=${APP_DECRED_NODE_RPC_PASS}"
-      - "--nofilelogging"
-      - "--datadir=/home/decred/.dcrd"
+    command: ["sh", "-c", "apt-get update && apt-get install -y wget ca-certificates && wget https://github.com/decred/decred-binaries/releases/download/v2.0.6/dcrd-linux-amd64-v2.0.6.tar.gz && tar -xzf dcrd-linux-amd64-v2.0.6.tar.gz && chmod +x dcrd-linux-amd64-v2.0.6/dcrd && ./dcrd-linux-amd64-v2.0.6/dcrd --rpclisten=0.0.0.0:${APP_DECRED_NODE_RPC_PORT} --listen=0.0.0.0:${APP_DECRED_NODE_P2P_PORT} --rpcuser=${APP_DECRED_NODE_RPC_USER} --rpcpass=${APP_DECRED_NODE_RPC_PASS} --nofilelogging --datadir=/home/decred/.dcrd"]
     networks:
       - default
     ports:
