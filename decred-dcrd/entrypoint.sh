@@ -11,7 +11,7 @@ listen=0.0.0.0:${APP_DECRED_NODE_P2P_PORT:-9108}
 # RPC Server
 rpclisten=0.0.0.0:${APP_DECRED_NODE_RPC_PORT:-9109}
 rpcuser=${APP_DECRED_NODE_RPC_USER}
-rpcpass=${APP_DECRED_NODE_RPC_PASS:-$(head -c 32 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9' | head -c 32)}
+rpcpass=${APP_DECRED_NODE_RPC_PASS}
  
 # Logging
 debuglevel=info

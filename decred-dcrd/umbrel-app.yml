@@ -37,7 +37,7 @@ torOnly: false
 permissions: []
 environment:
   APP_DECRED_NODE_RPC_USER: "umbrel"
-  APP_DECRED_NODE_RPC_PASS: 
+  APP_DECRED_NODE_RPC_PASS: "$APP_SEED"
   APP_DECRED_NODE_RPC_PORT: "9109"
   APP_DECRED_NODE_P2P_PORT: "9108"
 submitter: exitus1
