@@ -16,7 +16,6 @@ services:
     volumes:
       - ${APP_DATA_DIR}/data:/root/.dcrd  # ← CHANGED from /data to /root/.dcrd
     environment:
-
       APP_DECRED_NODE_RPC_USER: ${APP_DECRED_NODE_RPC_USER}
       APP_DECRED_NODE_RPC_PASS: ${APP_DECRED_NODE_RPC_PASS}
       APP_DECRED_NODE_RPC_PORT: ${APP_DECRED_NODE_RPC_PORT}
@@ -33,8 +32,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
-
-
 
   decred-ui:
     image: decred-dashboard:latest
