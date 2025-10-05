@@ -14,8 +14,8 @@ app.use(express.static(path.join(__dirname, 'dist')));
 // RPC connection details from environment
 const RPC_HOST = process.env.DCRD_RPC_HOST || 'dcrd';
 const RPC_PORT = process.env.DCRD_RPC_PORT || '9109';
-const RPC_USER = process.env.DCRD_RPC_USER || 'umbrel';
-const RPC_PASS = process.env.DCRD_RPC_PASS || '';
+const RPC_USER = process.env.DCRD_RPC_USER;
+const RPC_PASS = process.env.DCRD_RPC_PASS;
 
 // RPC helper function
 async function rpcCall(method, params = []) {
@@ -26,7 +26,7 @@ async function rpcCall(method, params = []) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${auth}`
+        ...(RPC_USER && RPC_PASS ? { 'Authorization': `Basic ${auth}` } : {})
       },
       body: JSON.stringify({
         jsonrpc: '1.0',
@@ -108,6 +108,12 @@ app.get('/api/node/difficulty', async (req, res) => {
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
+
+// Handle the invalid RPC_USER or RPC_PASS
+if (!RPC_USER || !RPC_PASS) {
+  console.error("RPC_USER and RPC_PASS must be set as environment variables");
+  process.exit(1);
+}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
