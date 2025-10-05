@@ -14,7 +14,7 @@ services:
     restart: on-failure
     stop_grace_period: 5m
     volumes:
-      - ${APP_DATA_DIR}/data:/home/decred
+      - ${APP_DATA_DIR}/data:/home/decred/.dcrd
     command:
       - "--rpclisten=0.0.0.0:${APP_DECRED_NODE_RPC_PORT}"
       - "--listen=0.0.0.0:${APP_DECRED_NODE_P2P_PORT}"
